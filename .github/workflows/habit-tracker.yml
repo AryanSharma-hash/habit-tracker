@@ -1,0 +1,42 @@
+name: Automated Habit Tracker Log
+
+on:
+  schedule:
+    # Runs every day at midnight UTC (00:00 UTC)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  log-habit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize Habit Log if it doesn't exist
+        run: |
+          if [ ! -f "habit-log.md" ]; then
+            echo "# Daily Habit & Activity Tracker" > habit-log.md
+            echo "" >> habit-log.md
+            echo "| Date & Time (UTC) | Status | Focus Area |" >> habit-log.md
+            echo "| :--- | :--- | :--- |" >> habit-log.md
+          fi
+
+      - name: Append Daily Log Entry
+        run: |
+          CURRENT_DATE="$(date -u '+%Y-%m-%d %H:%M:%S')"
+          echo "| $CURRENT_DATE | ✅ Completed | Automated Check-in & Coding Practice |" >> habit-log.md
+
+      - name: Set up Git identity
+        run: |
+          git config --global user.name "AryanSharma-hash"
+          git config --global user.email "amangametester@gmail.com"
+
+      - name: Commit and push changes
+        run: |
+          git add habit-log.md
+          git commit -m "docs: automated daily habit check-in for $(date -u '+%Y-%m-%d')"
+          git push
